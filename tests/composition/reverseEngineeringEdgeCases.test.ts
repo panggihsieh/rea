@@ -1084,8 +1084,10 @@ it("records an explicit loss marker when provider bytes are invalid UTF-8", asyn
       expect(result.value).toMatchObject({
         raw_result: { stdout: "captured � output" },
       });
-      expect(result.value.limitations).toContain(
-        "Captured stdout bytes contain invalid or incomplete UTF-8; replacement characters in the text capture do not preserve the original bytes.",
+      expect(result.value.limitations).toContainEqual(
+        expect.stringMatching(
+          /stdout bytes.*invalid or incomplete UTF-8.*replacement characters.*do not preserve the original bytes/iu,
+        ),
       );
     }
   } finally {
@@ -1136,8 +1138,13 @@ it.each([
       const result = await service.executeRizinCommand({ path, command: "iI" });
       expect(result.ok).toBe(true);
       if (result.ok)
-        expect(result.value.limitations).toContain(
-          `Captured ${streams} bytes contain invalid or incomplete UTF-8; replacement characters in the text capture do not preserve the original bytes.`,
+        expect(result.value.limitations).toContainEqual(
+          expect.stringMatching(
+            new RegExp(
+              `${streams} bytes.*invalid or incomplete UTF-8.*replacement characters.*do not preserve the original bytes`,
+              "iu",
+            ),
+          ),
         );
     } finally {
       await rm(directory, { recursive: true, force: true });

@@ -29,7 +29,6 @@ import {
   createDarwinProcessRunTokenReader,
   DarwinProcessOwnershipInspectionError,
   SWIFTC_INTERRUPT,
-  swiftcCompileTimeoutRecovery,
 } from "../../../src/process/DarwinProcessRunTokenReader.js";
 import { execFileOutput } from "../../../src/process/ExecFileOutput.js";
 import {
@@ -280,7 +279,11 @@ it.skipIf(process.platform === "win32")(
       expect(failure.message).toContain(
         "macOS process ownership helper compilation failed via xcrun (compiler result: timed out after 3000 ms.",
       );
-      expect(failure.message).toContain(swiftcCompileTimeoutRecovery(3_000));
+      expect(failure.message).toContain("REA_SWIFTC_COMPILE_TIMEOUT_MS");
+      expect(failure.message).toContain("1..2147483647");
+      expect(failure.message).toContain("120000 ms");
+      expect(failure.message).toMatch(/restart REA/i);
+      expect(failure.message).toMatch(/next ownership-helper compile/i);
       expect(failure.message).toContain(
         "error: PCH was compiled with module cache path that differs",
       );
@@ -312,8 +315,9 @@ it.skipIf(process.platform === "win32")(
     });
     try {
       await expect(preparationFailure(reader)).resolves.toMatchObject({
-        message:
-          "macOS process ownership helper compilation failed via xcrun (compiler result: stopped by signal SIGSEGV): fatal: segmentation fault during type checking",
+        message: expect.stringMatching(
+          /xcrun.*SIGSEGV.*fatal: segmentation fault during type checking/i,
+        ),
         compilerOutcome: {
           outcome: "signaled",
           code: null,

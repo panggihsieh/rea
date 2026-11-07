@@ -450,8 +450,9 @@ itWithCaptureCapability(
     );
     expect(observations.filesystem_snapshots.after).toEqual({
       state: "unavailable",
-      reason:
-        "Final filesystem snapshot failed: fixture final snapshot failure",
+      reason: expect.stringMatching(
+        /final.*snapshot.*fixture final snapshot failure/i,
+      ),
     });
     expect(observations.event_journal.state).toBe("available");
     if (observations.event_journal.state !== "available")

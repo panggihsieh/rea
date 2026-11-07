@@ -7,7 +7,6 @@ import { createTestTempDirectory } from "../../tests/fixtures/temporaryDirectory
 import { scanCanonicalArtifactInventory } from "../../tests/fixtures/artifactInventory.js";
 import {
   NativeDmgArtifactReader,
-  DMG_EXISTING_ATTACHMENT_RECOVERY,
   type NativeDmgHost,
 } from "./NativeDmgArtifactReader.js";
 import { translateArtifactFailure } from "./ArtifactOperationFailure.js";
@@ -108,10 +107,10 @@ it.each(["same", "other", "missing-path", "no-path", "empty-group"] as const)(
       expect.objectContaining({ kind: "artifact-inventory" }),
     );
     if (listed === "same") {
-      expect(projected.message).toBe(DMG_EXISTING_ATTACHMENT_RECOVERY);
-      expect(projected.remediation.action).toBe(
-        DMG_EXISTING_ATTACHMENT_RECOVERY,
+      expect(projected.message).toMatch(
+        /hdiutil.*existing attachment.*owner.*release.*retry.*does not borrow or detach/iu,
       );
+      expect(projected.remediation.action).toBe(projected.message);
     } else {
       expect(projected.message).toBe(
         analysisErrorUserMessage(

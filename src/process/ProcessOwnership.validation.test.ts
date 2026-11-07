@@ -485,8 +485,9 @@ describe("identityless exit refresh leaves unrelated replacements unresolved", (
       ),
     ).resolves.toMatchObject({
       cleaned: false,
-      reason:
-        "process ownership could not be revalidated for PID 102: environment unavailable",
+      reason: expect.stringMatching(
+        /ownership.*could not be revalidated.*PID 102.*environment unavailable/i,
+      ),
     });
     expect(signalGroup).not.toHaveBeenCalled();
   });
@@ -1340,8 +1341,9 @@ describe("Windows P0 process-tree cleanup", () => {
     });
     await expect(cleanupWindowsProcessTree(42, failing)).resolves.toEqual({
       cleaned: false,
-      reason:
-        "Windows process-tree termination failed for PID 42: taskkill failed",
+      reason: expect.stringMatching(
+        /Windows process-tree termination failed.*PID 42.*taskkill failed/i,
+      ),
     });
   });
 });

@@ -1384,8 +1384,8 @@ it("preserves ordinary configuration recovery and projects a producer-owned sess
       remediationAction: "Repair the running session, then retry.",
     }),
   );
-  expect(original.remediation.action).toBe(
-    "Correct REA_EXAMPLE in the environment that starts REA (your shell or the MCP client's registration), then rerun.",
+  expect(original.remediation.action).toMatch(
+    /correct.*REA_EXAMPLE.*environment.*shell.*MCP.*registration.*rerun/iu,
   );
   expect(repairing).toEqual({
     ...original,

@@ -219,21 +219,22 @@ const nestedArrays = (depth: number) =>
 it("rejects XML nesting beyond the projection limit with the limit diagnostic", () => {
   // Source depth must report the shared limit before recursive value decoding.
   const limit = new PlistNestingLimitError(128);
-  expect(() => parseXmlPropertyList(nestedDictionaries(129))).toThrow(limit);
   expect(() => parseXmlPropertyList(nestedArrays(129))).toThrow(limit);
   expect(() => parseXmlPropertyList(nestedDictionaries(3000))).toThrow(limit);
   expect(() => parseXmlPropertyList(nestedArrays(4000))).toThrow(limit);
+  let failure: unknown;
   try {
     parseXmlPropertyList(nestedDictionaries(129));
-    throw new Error("Expected default nesting refusal");
   } catch (cause: unknown) {
-    expect(cause).toBeInstanceOf(RangeError);
-    expect(cause).toMatchObject({
-      _tag: "PlistNestingLimitError",
-      maximumDepth: 128,
-      message: plistNestingLimitMessage(),
-    });
+    failure = cause;
   }
+  expect(failure).toBeInstanceOf(PlistNestingLimitError);
+  expect(failure).toBeInstanceOf(RangeError);
+  expect(failure).toMatchObject({
+    _tag: "PlistNestingLimitError",
+    maximumDepth: 128,
+    message: plistNestingLimitMessage(),
+  });
 });
 
 it("decodes XML property lists exactly at the projection nesting limit", () => {
